@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block extra_styling %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/product.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
+
+<script src="{{ url_for('static', filename='js/modal.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+    
+
+<div class="product-block">
+    
+
+    <div class="product-left">
+        <img src="/static/images/{{product.picture}}" alt="Product Image" id="productImage" class="product-img">
+        <div class="product-date" id="utc-time" data-utc="{{ product.date_modified.isoformat() }}">
+        </div>
+    </div>
+    <h2 class="product-title">{{ product.title }}</h2>
+    <p class="product-price">Price: ${{"%.2f"|format(product.price)}}</p>
+    <p class="product-description">
+        {{product.description}}
+    </p>
+
+    <div id="myModal" class="modal">
+        <div class="modal-container">
+            <span class="close">&times;</span>
+            <img class="modal-content" id="img01">
+        </div>
+    </div>
+    
+    <div class="product-actions">
+        {% if user and user.id==product.user_id and product.sold==False %}
+            <button onClick="updateProduct( '{{product.id}}' )" class="bttn update">UPDATE PRODUCT</button>
+            <button onClick="deleteProduct( '{{product.id}}' )" class="bttn delete">DELETE PRODUCT</button>
+        {% elif product.sold==False %}
+            <a data-product-id="{{ product.id }}" data-username="{{ user.username if user else '' }}" onClick="buyProduct(this)" class="bttn buy">BUY PRODUCT</a>
+        {% else %}
+            <button type="button" class="bttn sold" disabled>This product was sold</button>
+        {% endif %}
+    </div>
+
+    {% if error_message %} 
+        <div class="error-message"><strong>{{error_message}}</strong></div>
+    {% endif %}
+   
+</div>
+
+
+{% if request.args.get('success') %}
+<script>
+    alert("Your purchase was successful!");
+</script>
+{% endif %}
+
+<script>
+
+    function deleteProduct(id) {
+        if (confirm("Are You Sure?") === true) {
+            window.location.replace(`/user/{{ user.username }}/delete_post/${id}`);
+        }
+    }
+    function updateProduct(id) {
+        window.location.replace(`/user/{{ user.username }}/update_product/${id}`);
+    }
+    function buyProduct(element) {
+        const id = element.dataset.productId;
+        const username = element.dataset.username;
+        if (username) {
+            window.location.replace(`/user/{{ user.username }}/buy_product/${id}`);     
+        } else {
+            window.location.replace("/login");
+        }
+    }
+
+    document.querySelectorAll('#utc-time').forEach(el => {
+        let raw = el.dataset.utc;
+        if (!raw.endsWith("Z") && !raw.includes("+")) {
+            raw += "Z";
+        }
+        const utcDate = new Date(raw);
+        const localString = utcDate.toLocaleDateString();
+        el.textContent = "Last Updated: " + localString;
+    });
+
+</script>
+
+{% endblock %}

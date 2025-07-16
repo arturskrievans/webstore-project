@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block extra_styling %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/post-data.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Sign Up Form</h2>
+    <form action="{{ url_for('signup') }}" method="post">
+        <label for="username">Username: </label> <br>
+        <input type="text" id="username" name="username" value="{{username if username}}" maxlength="20" required> <br>
+        <label for="email">Email: </label> <br>
+        <input type="email" id="email" name="email" value="{{email if email}}" maxlength="100" required> <br>
+        <label for="pswd">Password: </label> <br>
+        <input type="password" id="pswd" name="pswd" required> <br>
+        <label for="pswd-confirm">Confirm Password:</label><br>
+        <input type="password" id="pswd-confirm" name="pswd-confirm" required>
+        <input type="submit" value="Submit">
+    </form>
+    {% if error %}
+    <div class="error-message"><strong>{{error}}</strong></div>
+    {% endif %}
+</div>
+
+
+<script>
+    window.addEventListener("load", function () {
+        const formContainer = document.querySelector('.form-container');
+        const has_loaded = sessionStorage.getItem('visited-signup');
+        if (!has_loaded) {
+            formContainer.classList.add('slide-down');
+            sessionStorage.setItem('visited-signup', 'true');
+        } else {
+            formContainer.style.opacity = 1;
+            formContainer.style.transform = 'translateY(10vh)';
+        }
+    });
+</script>
+
+{% endblock %}

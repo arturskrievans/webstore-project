@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block extra_styling %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="about-section">
+        <div>
+            <h2>Website's Functionality:</h2>
+            <p>
+                This website supports all CRUD operations via creating accounts and products, displaying their information as well as updating and deleting them. <br><br>
+                By uploading a lot of products to the shop (at least 5) you can additionally see pagination in effect to make navigation process easier. Filtering by price and 
+                date is also possible. Products that are sold cannot be further modified and are simply marked as "sold" with an eye-catching visual effect. <br><br>
+                All the necessary information is stored in the database models such that the users don't have to reupload it on server and session restarts. <br> <br>
+                Basic security protocols like password hashing (werkzeug.security), user authentication and link validation are followed. Meaning, no sensitive information is 
+                stored in plain text anywhere, you cannot access different accounts or perform unauthorized operations by manipulating the URL parameters. <br><br>
+                As you can see by the <b><a href="{{url_for('chat')}}">Global Chat</a></b> page, this website does not only use the HTTP communication protocol, but also 
+                takes the advantage of WebSockets - request and receive information with persistent connection. <br> In short, the HTTP protocol is used for all CRUD methods 
+                where new data is first received from a form and only then displayed. WebSockets are used for a live global chat room where we don't want the user to have to reload
+                the page to see new messages. Nevertheless, the last 50 messages are still saved in the database and rendered on page load so users can view some message history.
+            </p>
+        </div>
+        <div>
+            <h2>What Was Used For The Implementation?</h2>
+            <p>
+                All the backend was implemented using <b>Flask</b> - a lightweight Python web framework.<br><br>
+                For database models I used <b>SQLAlchemy</b> - a Python SQL toolkit that supports nearly all SQL based operations. <br><br>
+                For fully functional WebSocket implementation and more interactive front-end <b>JavaScript</b> was also applied. <br><br>
+                To secure bidirectional communication for the live chat, I additionally used <b>Socket.IO</b> - a Python and JavaScript supported library for real-time web apps.<br><br>
+                Libraries like <b>werkzeug, os, uuid</b> were used to make the website more secure and robust. <br><br>
+                To structure, display and style the content <b>HTML + css</b> were also utilized.
+
+            </p>
+        </div>
+        <div>
+            <b>🔗 See full project on <a>GitHub</a>.</b>
+        </div>
+    </div>
+{% endblock %}

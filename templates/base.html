@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>webstore</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block extra_styling %} {% endblock %}
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div class="container">
+            <ul class="ul-1">
+                <li><a href="{{ url_for('main_page') }}">Home</a></li>
+            </ul>
+            <ul class="ul-2" id="link-list">
+                <li><a href="{{ url_for('view_products') }}">Shop</a></li>
+                <li><a href="{{ url_for('chat') }}">Global Chat</a></li>
+                {% if user %}
+                    <li><a href="{{ url_for('user_page', username=user.username)}}">My profile</a></li>
+                    <li><a href="{{ url_for('logout')}}">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('signup') }}">Signup</a></li>
+                {% endif %}
+            </ul>
+            <ul class="ul-3">
+                <li><a onclick="openNav()">
+                    <i class="fa fa-bars"></i>
+                </a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+
+<script>
+    function openNav() {
+        const linkList = document.getElementById("link-list");
+        if (linkList.style.display==="block") {
+            linkList.style.display="none";
+        } else {
+            linkList.style.display="block";
+        }
+    }
+</script>
+
+</body>
+
+</html>

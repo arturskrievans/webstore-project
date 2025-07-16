@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block extra_styling %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/post-data.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container-products">
+    <h2>About My Product:</h2>
+    <form method="post" enctype="multipart/form-data">
+        <label for="title">Name Your Product:</label>   <br>
+        <input type="text" id="title" name="title" value="{{product.title if product}}" maxlength="100" required>    <br>
+
+        {% if product and product.picture!='default.jpg' %}
+            <label>Your current picture is: </label><br>
+            <img src="{{ url_for('static', filename='images/' ~ product.picture) }}" alt="{{product.picture}}" width="200"><br>
+            <input type="checkbox" id="remove_picture" name="remove_picture">
+            <label for="remove_picture"> Remove current picture </label><br>
+        {% endif %}
+        <label> Your Image File:
+            <input type="file" name="ProductImage" id="ProductImage" accept="image/*" />
+        </label>    
+        <br>   
+        <label for="price">Enter Product Price:</label> <br>
+        <input type="number" id="price" name="price" min="0" step="0.01" value="{{product.price if product}}" required> <br>
+        <label for="p-description">Write A Short Description:</label><br>
+        <textarea id="p-description" name="p-description" style="height: 150px;" maxlength="400" placeholder="What Are You Selling...."> {{product.description if product}}</textarea>
+        <br>
+        <input type="submit" value="Sell Product">
+    </form>
+</div>
+
+{% endblock %}

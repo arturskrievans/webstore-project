@@ -1,0 +1,110 @@
+
+.user-container-main {
+    background-color: #f2f2f2;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    margin-top: 40px;
+}
+
+.user-container-2 {
+    background-color: #c8c7c7f1;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    padding: 5px;
+    display: flex;
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.user-container-2 form {
+    display: flex;
+    width: 100%;
+}
+.right-box {
+    display: flex;
+    margin-left: auto;
+}
+
+.button1 {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    color: #333;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    min-width: 140px;
+}
+
+.button1:hover {
+    background-color: #dcdcdc;
+}
+
+#delete_account,
+#password_incorrect,
+#email_exists,
+#change_email,
+#username_exists,
+#change_username {
+    background-color: #e6e2e2;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex: 1;
+    max-width: 300px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input[type="text"]:focus {
+    border-color: #66afe9;
+    outline: none;
+    box-shadow: 0 0 5px rgba(102, 175, 233, 0.5);
+}
+
+.error-message {
+    color: #dc3545;
+    font-weight: 500;
+    margin-top: 10px;
+    font-size: 16px;
+    animation: fadeIn 0.3s ease-in;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.product-link {
+    text-decoration: none;
+    color: black;
+
+}
+
+.product-link:hover{
+    background-color: #a9a8a8;
+    cursor: pointer;
+}
+
+@media only screen and (max-width: 600px) {
+
+    .user-container-main {
+        margin-top: 10px;
+    }
+
+    .user-container-2 form {
+        display: block;
+    }
+
+    form .button1 {
+        min-width: 205px;
+    }
+}

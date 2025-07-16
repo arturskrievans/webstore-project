@@ -1,0 +1,125 @@
+.product-page-block {
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(350px, auto));
+    grid-template-rows: repeat(2, minmax(350px, auto));
+    justify-content: space-evenly;
+    gap:40px;
+
+
+}
+
+.product-page {
+    position:relative;
+    background: #f3f3f3;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    max-width: 350px;
+    max-height: 350px;
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-page img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+.overlay {
+    position: absolute;
+    width: 100%;
+    font-size: 20px;
+    color: #262626;
+    opacity: 0.9;
+}
+
+
+
+.info-block {
+    display: flex;
+    font-size: 0.9rem;
+    color: #777;
+    line-height: 0;
+}
+
+.product-date {
+    flex: 1;
+    text-align: left;
+}
+
+.product-price {
+    text-align: right;
+    color:black;
+}
+
+.description {
+    margin-top: auto;
+    margin-bottom: auto;
+    line-height: 1;
+}
+
+
+.paginator-block {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.paginator-block a {
+    text-decoration: none;
+    color: black;
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    transition: background-color .3s;
+}
+
+.paginator-block a.active {
+    background-color: #4CAF50;
+    color: white;
+    border: 1px solid #4CAF50;
+}
+
+.paginator-block a:hover:not(.active) {
+    background-color: #ddd;
+}
+
+.paginator-block .disabled {
+    color: #aaa;
+    pointer-events: none;
+    cursor: default;
+    text-decoration: none;
+}
+
+.filter-container {
+    display: flex;
+    justify-content: end;
+    padding: 20px;
+}
+
+select,
+input[type="submit"] {
+    color: #333;
+    padding: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    min-width: 60px
+}
+
+@media only screen and (max-width: 600px) { 
+    .product-page-block {
+        display: block;
+    }
+    .product-page {
+        margin-top: 40px;
+    }
+    
+    .filter-container label,
+    .filter-container select,
+    .filter-container input[type="submit"] {
+        width: 100%;
+        padding: 10px;
+    }
+}

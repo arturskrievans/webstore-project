@@ -1,0 +1,97 @@
+{% extends "base.html" %} 
+
+{% block extra_styling %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="chat-container">
+    
+    <div class="messages">
+
+        <div id="add-messages">
+        </div>
+        
+    </div>
+
+    <div class="send">
+        <input type="text" name="message" id="message" placeholder="Enter a Message" required>
+        {% if user %}
+            <button name="send" id="send" onclick="getMessage()" class="bttn">Send</button>
+        {% else %}
+            <a href="{{url_for('login')}}" id="send" class="bttn">Send</a>
+        {% endif %}
+    </div>
+
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" 
+integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" 
+crossorigin="anonymous"></script>
+
+<script>
+    const socketio = io();
+    const add_messages = document.getElementById("add-messages");
+
+    const inputField = document.getElementById("message");
+    inputField.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+            document.getElementById("send").click();
+        }
+    });
+    
+    function scrollToBottom() {
+        const messageContainer = document.querySelector(".messages");
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+
+    function getMessage() {
+        const msg = document.getElementById("message");
+        if (msg.value == "") return;
+        socketio.emit("receive_message", {content: msg.value} );
+        msg.value="";
+    };
+
+
+    socketio.on("send_message", (data)=> {
+        buildMessage(data.user, data.content, data.timestamp);
+        scrollToBottom();
+    });
+
+    function buildMessage(username, message, date) {
+        correct_date = local_time(date);
+        const content_block = `
+            <div style="display: flex;  align-items: center;">
+                <div style="flex:1;">
+                    <strong>${username}: </strong>${message}
+                </div>
+                <div>
+                    <p style="font-size: 0.9rem; color: #777;"> ${correct_date} </p>
+                </div>
+            </div>
+        `;
+        add_messages.innerHTML += content_block;
+    }
+
+
+    function local_time(date) {
+        if (!date.endsWith("Z") && !date.includes("+")) {
+            date += "Z";
+        }
+        const utcDate = new Date(date);
+        const localString = utcDate.toLocaleString();  
+        return localString;
+    }
+
+    
+</script>
+
+{% for msg in messages %}
+    <script>
+        buildMessage("{{msg.user.username}}", "{{msg.message}}", "{{msg.date_created}}");
+    </script>
+{% endfor %}
+
+{% endblock %}

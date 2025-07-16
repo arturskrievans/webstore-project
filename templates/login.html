@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block extra_styling %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/post-data.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Login Form</h2>
+    <form action="{{ url_for('login') }}" method="post">
+        <label for="user">Username or Email: </label> <br>
+        <input type="text" id="user" name="user" value="{{user.email if user}}" required> <br>
+        <label for="pswd">Password: </label> <br>
+        <input type="password" id="pswd" name="pswd" required> <br>
+        <input type="submit" value="Submit">
+    </form>
+    {% if error %}
+    <div class="error-message"><strong>Invalid login details!</strong></div>
+    {% endif %}
+</div>
+
+<script>
+    window.addEventListener("load", function () {
+        const formContainer = document.querySelector('.form-container');
+        const has_loaded = sessionStorage.getItem('visited-login');
+        if (!has_loaded) {
+            formContainer.classList.add('slide-down');
+            sessionStorage.setItem('visited-login', 'true');
+        } else {
+            formContainer.style.opacity = 1;
+            formContainer.style.transform = 'translateY(10vh)';
+        }
+    });
+</script>
+
+
+{% endblock %}

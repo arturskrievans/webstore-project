@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+
+{% block extra_styling %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="info-wrapper">
+    <img src="/static/images/background-main.jpg" class="intro-bg">
+    <div class="info-block">
+        <h1>
+            A Demo Webstore
+        </h1>
+        <p>
+            Hello{% if user %}, <a href="{{url_for('user_page', username=user.username)}}"><b>{{user.username}}</b></a>{% endif %}! You have visited a demo online market.<br>
+            Here you can sell, buy & update products as well as interact with other users via <b><a href="{{url_for('chat')}}">global chat</a></b>. <br>
+            {% if user %}
+                <b><a href="{{url_for('publish_product', username=user.username)}}">Sell Your First Item!</a></b>
+            {% else %}
+                Don't have an account? Create one <b><a href="{{url_for('signup')}}">here</a></b> or <b><a href="{{url_for('login')}}">login</a></b>!
+            {% endif %}
+        </p>
+    </div>
+</div>
+<div class="info-about">
+    <p>
+        Curious How this website was made? <b><a href="{{url_for('about')}}">Read more about the technical side</a></b>.
+    </p>
+</div>
+
+<script>
+    window.addEventListener("load", function () {
+        const infoBlock = document.querySelector('.info-block');
+        const has_loaded = sessionStorage.getItem('visited-main');
+        if (!has_loaded) {
+            infoBlock.classList.add('load');
+            sessionStorage.setItem('visited-main', 'true');
+        } else {
+            infoBlock.style.opacity = 1;
+            infoBlock.style.transform='translate(-50%, -50%)';
+            infoBlock.style.top = '50%';
+        }
+    });
+</script>
+
+{% endblock %}

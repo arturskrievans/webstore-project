@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block extra_styling %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/all_products.css') }}">
+{% endblock %}
+
+{% block content %}
+{% if products|length > 0 %}
+    <div class="filter-container">
+        <form method="get">
+            <label for="price">Sort By Price:</label>
+            <select name="price" id="price">
+                <option value=""></option>
+                <option value="asc" {% if request.args.get('price') == 'asc' %}selected{% endif %}>Low To High</option>
+                <option value="desc" {% if request.args.get('price') == 'desc' %}selected{% endif %}>High To Low</option>
+            </select>
+            <label for="date">Date:</label>
+            <select name="date" id="date">
+                <option value=""></option>
+                <option value="desc" {% if request.args.get('date') == 'desc' %}selected{% endif %}>Newest</option>
+                <option value="asc" {% if request.args.get('date') == 'asc' %}selected{% endif %}>Oldest</option>
+            </select>
+            <input type="submit" value="Apply">
+        </form>
+    </div>
+{% endif %}
+<div class="product-page-block">
+{% for product in products %}
+    {% if product.sold==False or user_page %}
+        <div class="product-page" onclick="viewProduct('{{product.id}}')">
+            <img src="/static/images/{{product.picture}}" alt="Product Image" id="productImage">
+            {% if product.sold == True %}
+                <div class="overlay"><img src="{{url_for('static', filename='images/sold.png')}}"></div>
+            {% endif %}
+            <div class="info-block">
+                <p class="product-date" id="utc-time" data-utc="{{ product.date_created.isoformat() }}"></p>
+                <p class="product-price"><b>${{"%.2f"|format(product.price)}}</b></p>
+            </div>
+            <div class="description">
+                <b>{{product.title}}</b>
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}
+
+</div>
+
+{% if total_pages > 1 %}
+    <div class="paginator-block">
+
+        {% if current_page > 1 %}
+            <a href="{{ url_for('user_products' if user_page else 'view_products', 
+            page=current_page-1, 
+            price=request.args.get('price'),
+            date=request.args.get('date'),
+            username=user.username if user_page else None) }}">&laquo;</a>
+        {% else %}
+            <a class="disabled">&laquo;</span>
+        {% endif %}
+
+        {% for page in range(start_page, end_page) %}
+            <a href="{{ url_for('user_products' if user_page else 'view_products', 
+            page=page, 
+            price=request.args.get('price'),
+            date=request.args.get('date'),
+            username=user.username if user_page else None) }}" class="{% if page==current_page %}active{% endif %}">{{page}}</a>
+        {% endfor %}
+
+        {% if current_page+1 < end_page %} 
+            <a href="{{ url_for('user_products' if user_page else 'view_products', 
+            page=current_page+1, 
+            price=request.args.get('price'),
+            date=request.args.get('date'),
+            username=user.username if user_page else None) }}">&raquo;</a>
+        {% else %}
+            <a class="disabled">&raquo;</span>
+        {% endif %}
+
+    </div>
+{% endif %}
+
+{% if request.args.get('success') %}
+    <script>
+        alert("Your purchase was successful!");
+    </script>
+{% endif %}
+
+<script>
+
+    function viewProduct(id) {
+        window.location.href = `/product/${id}`;
+    }
+
+    document.querySelectorAll('#utc-time').forEach(el => {
+        let raw = el.dataset.utc;
+        if (!raw.endsWith("Z") && !raw.includes("+")) {
+            raw += "Z";
+        }
+        const utcDate = new Date(raw);
+        const localString = utcDate.toLocaleDateString();
+        el.textContent = localString;
+    });
+
+</script>
+
+{% endblock %}

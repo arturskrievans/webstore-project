@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block extra_styling %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="user-container-main">
+    <h2>My Account Details:</h2>
+    <div class="user-container-2">
+        <div>My Username: <strong>{{user.username}}</strong></div>
+        <div class="right-box"> 
+            <button  onClick="changeUsername()" class="button1">Change Username</button>
+        </div>
+    </div>
+    
+    <div class="user-container-2" id="change_username" style="display:none">
+        <form action="{{ url_for('user_page', username=user.username) }}" method="post">
+            <div>
+                <label for="username">New Username: </label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="right-box">
+                <input type="submit" value="Submit" class="button1">
+            </div>
+        </form>
+    </div>
+    {% if username_exists %}
+        <div class="user-container-2" id="username_exists">
+            
+                <div class="error-message" aria-live="polite">
+                    <span> <strong>{{username_exists}}</strong></span>
+                    <button onclick="dismissError()" class="error-message" style="margin-top: 0px;">×</button>
+                </div>
+        </div>
+    {% endif %}
+
+    <div class="user-container-2">
+        <div>My Email: <strong>{{user.email}}</strong></div>
+        <div class="right-box">
+            <button onClick="changeEmail()" class="button1">Change Email</button>
+        </div>
+    </div>
+
+    <div class="user-container-2" id="change_email" style="display:none">
+        <form action="{{ url_for('user_page', username=user.username) }}" method="post">
+            <div>
+                <label for="email">New Email: </label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="right-box">
+                <input type="submit" value="Submit" class="button1">
+            </div>
+        </form>
+    </div>
+    {% if email_exists %}
+        <div class="user-container-2" id="email_exists">
+                <div class="error-message" aria-live="polite">
+                    <span> <strong>{{email_exists}}</strong></span>
+                    <button onclick="dismissError2()" class="error-message" style="margin-top: 0px;">×</button>
+                </div>
+        </div>
+    {% endif %}
+    <div class="user-container-2">
+        <div>Account Created: <strong class="utc-time" data-utc="{{ user.date_created.isoformat() }}"></strong></div>
+    </div>
+    <div class="user-container-2">
+        <div>My Balance: <strong>{{"%.2f"|format(user.balance)}}$</strong></div>
+    </div>
+    <div class="user-container-2">
+        <div>Money Earned: <strong>{{"%.2f"|format(user.earned)}}$</strong></div>
+    </div>
+    <div class="user-container-2">
+        <div>Money Spent: <strong>{{"%.2f"|format(user.spent)}}$</strong></div>
+    </div>
+    <div class="user-container-2">
+        <strong>
+            <a href="{{ url_for('user_products', username=user.username) }}" class="product-link">View My Products</a>
+        </strong>
+    </div>
+    <div class="user-container-2">
+        <strong>
+            <a href="{{ url_for('user_purchases', username=user.username) }}"
+            class="product-link">View My Purchases</a>
+        </strong>
+    </div>
+    <div class="user-container-2">
+        <strong>
+            <a href="{{ url_for('publish_product', username=user.username) }}"
+            class="product-link">Sell A New Product</a>
+        </strong>
+    </div>
+
+    <div class="user-container-2">
+        <strong class="product-link" onClick="deleteAccount()">
+            Delete My Account
+        </strong>
+    </div>
+    <div class="user-container-2" id="delete_account" style="display:none">
+        <form action="{{ url_for('user_page', username=user.username) }}" method="post">
+            <div>
+                <label for="pswd">Confirm With Your Password: </label>
+                <input type="password" id="pswd" name="pswd" required>
+            </div>
+            <div class="right-box">
+                <input type="submit" value="Submit" class="button1" onclick="return confirm('Are You Sure You Want To Delete Your Account?');">
+            </div>
+        </form>
+    </div>
+    {% if wrong_password %}
+    <div class="user-container-2" id="password_incorrect">
+        <div class="error-message" aria-live="polite">
+            <span> <strong>{{wrong_password}}</strong></span>
+            <button onclick="dismissError3()" class="error-message" style="margin-top: 0px;">×</button>
+        </div>
+    </div>
+    {% endif %}
+  
+</div>
+
+{% if product_published %} 
+<script>
+    alert("Product Was Published!")
+</script>
+{% endif %}
+
+<script>
+    let show_username = 1;
+    let show_email = 1;
+    let show_password = 1;
+
+    function changeUsername() {
+        document.getElementById("change_username").style.display = show_username ? "block" : "none";
+        show_username ^= 1;
+    }
+    function changeEmail() {
+        document.getElementById("change_email").style.display = show_email ? "block" : "none";
+        show_email ^= 1;
+    } 
+    function deleteAccount() {
+        document.getElementById("delete_account").style.display = show_password ? "block" : "none";
+        show_password ^= 1;
+    }
+
+
+    function dismissError() {
+        document.getElementById("username_exists").style.display = "none";
+    }
+    function dismissError2() {
+        document.getElementById("email_exists").style.display = "none";
+    }
+    function dismissError3() {
+        document.getElementById("password_incorrect").style.display = "none";
+    }
+
+    // adjust date format -> convert to local machine time
+    document.querySelectorAll('.utc-time').forEach(el => {
+        let raw = el.dataset.utc;
+        if (!raw.endsWith("Z") && !raw.includes("+")) {
+            raw += "Z";
+        }
+        const utcDate = new Date(raw);
+        const localString = utcDate.toLocaleString();  
+        el.textContent = localString;
+    });
+
+    
+</script>
+
+{% endblock %}
