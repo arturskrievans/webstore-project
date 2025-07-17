@@ -1,3 +1,8 @@
+"""
+Main Flask application file for the demo webstore.
+Handles routes for user authentication, product management, purchases, and global chat using WebSockets.
+"""
+
 from flask import Flask, request, render_template, redirect, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
@@ -28,8 +33,10 @@ def get_all_rows_from(Model):
 
 
 def save_image(image):
+    
+    # Saves and returns a unique image name such that no two images can have the same name in the image directory
     _, ext = os.path.splitext(image.filename)
-    unique_id = uuid.uuid4().hex
+    unique_id = uuid.uuid4().hex # get a unique string id
     image_name = unique_id+ext
     full_path = os.path.join(app.root_path, 'static/images', image_name)
     image.save(full_path)
@@ -38,6 +45,8 @@ def save_image(image):
 
 def pagination(products, page):
 
+    # Some positioning logic to ensure each shopping page has at most 4 products listed
+    
     total_pages = len(products)//4 + (0 if len(products)%4==0 else 1)
     page = page or 1
     pos = (page-1)*4
@@ -49,9 +58,13 @@ def pagination(products, page):
         start_page=max(1, page-5)
         end_page = page+1
 
+    # Return the 4 products list as well as some helper variables to display the products on the correct page
     return  products[pos:pos+4], start_page, end_page, total_pages
 
-def apply_filters(date, price, page, user=None, user_purchases=False): # filters + pagination logic
+def apply_filters(date, price, page, user=None, user_purchases=False): 
+
+    # Function with SQL based queries like "order by, where, join, select from, etc."
+    # To extract rows based on user preferences 
     
     stmt = db.select(Product)
     if user:
@@ -75,13 +88,18 @@ def apply_filters(date, price, page, user=None, user_purchases=False): # filters
         stmt = stmt.order_by(Product.date_created.asc()) 
     elif date=='desc':
         stmt = stmt.order_by(Product.date_created.desc()) 
-
+        
     products = db.session.execute(stmt).scalars().all()
+
+    # Return a tuple of all necessary values to display products at the appropriate page
     return pagination(products, page)
 
 
 def delete_old_history():
-    stmt = db.select(Message).order_by(Message.date_created.desc()).offset(50)
+
+    # Maintain the database by keeping only newest 50 messages
+    
+    stmt = db.select(Message).order_by(Message.date_created.desc()).offset(50) # Can adjust the offset to keep more/fewer messages
     messages = db.session.execute(stmt).scalars().all()
 
     for msg in messages:
@@ -105,7 +123,8 @@ def login():
     if request.method == 'POST':
         user = request.form['user']
         pswd = request.form['pswd']      
-        
+
+        # User can fill the form with either an email or username to login
         stmt = db.select(User).where(or_(
                 User.username == user,
                 User.email == user
@@ -136,7 +155,8 @@ def signup():
         email = request.form['email']
         pswd = request.form['pswd']
         pswd_confirm = request.form['pswd-confirm']
-       
+
+        # Only unique username/email accepted for each account
         if get_user_by(User.username, username):
             return render_template('signup.html', error="Username was already taken!", email=email)
         
@@ -161,13 +181,14 @@ def signup():
 
 @app.route("/user/<username>", methods=['POST', 'GET'])
 def user_page(username):
-    
+
+    # Security authentication logic used in every function which routes to some sensitive information
     if 'username' not in session or session.get('username') != username or not get_user_by(User.username, session.get('username')):
         return redirect(url_for('login'))
     
     user = get_user_by(User.username, username)
 
-    if request.method == 'POST':
+    if request.method == 'POST': # Handle user information updates & account deletion
 
         new_username = request.form['username'] if 'username' in request.form else None
         new_email = request.form['email'] if 'email' in request.form else None
@@ -197,7 +218,8 @@ def user_page(username):
 
         new_username = user.username
         return redirect(url_for('user_page', username=new_username))
-    
+
+    # "Error codes" for more dynamic templates
     username_exists = request.args.get('username_exists')
     email_exists = request.args.get('email_exists')
     wrong_password = request.args.get('wrong_password')
@@ -267,6 +289,7 @@ def publish_product(username):
 
     if 'username' not in session or session.get('username') != username or not get_user_by(User.username, session.get('username')):
         return redirect(url_for('login'))
+        
     user = get_user_by(User.username, username)
     if request.method=='POST':
 
@@ -279,7 +302,8 @@ def publish_product(username):
             image_name = save_image(image)
         else:
             image_name = 'default.jpg'
-        
+
+        # Link the product with it's publisher via foreign_key
         foreign_key =  get_user_by(User.username, username).id
         product = Product(title=product_title, price=product_price, picture=image_name, description=product_description, user_id=foreign_key)
         
@@ -379,10 +403,11 @@ def buy_product(username, product_id):
     product = db.session.get(Product, product_id)
     user = get_user_by(User.username, username)
 
-    if product and product.user_id != user.id:
+    if product and product.user_id != user.id: # Ensure a user cannot buy their own product
         
         if user.balance >= product.price:
 
+            # Update all neccessary database values on successful purchase
             product.sold = True
             user.balance -= product.price
             user.spent += product.price
@@ -418,8 +443,8 @@ def about():
     return render_template('about.html')
 
 @socketio.on("receive_message")
-def receive_message(data):
-
+def receive_message(data):  # WebSocket listener for incoming chat messages from clients
+    
     message = data["content"]
     
     username = session.get('username')
@@ -430,6 +455,8 @@ def receive_message(data):
     db.session.commit()
 
     delete_old_history()
+
+    # Send back the processed message data to a JavaScript socketio function "send_message"
     emit("send_message", {
         "user": username,
         "content": message,
@@ -441,5 +468,5 @@ if __name__=="__main__":
     with app.app_context():   # Needed for DB operations
         db.create_all()      # Creates the database and tables
     #socketio.run(app, debug=True)
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True) # connect from different devices on your network using http://ipv4:5000
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True) # connect from different devices on your home network using http://ipv4:5000
    
